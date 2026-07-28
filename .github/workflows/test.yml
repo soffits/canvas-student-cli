@@ -1,0 +1,71 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      - run: uv sync --extra dev
+      - run: uv run ruff check .
+      - run: uv run pytest
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: test
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+      - run: uv sync --extra dev
+      - run: uv build
+      - name: Verify artifacts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import tarfile
+          import zipfile
+
+          wheels = list(Path("dist").glob("canvas_student_cli-*.whl"))
+          sdists = list(Path("dist").glob("canvas_student_cli-*.tar.gz"))
+          if len(wheels) != 1 or len(sdists) != 1:
+              raise SystemExit("expected exactly one wheel and one sdist")
+
+          with zipfile.ZipFile(wheels[0]) as wheel:
+              names = set(wheel.namelist())
+              if "canvas_student_cli/SKILL.md" not in names:
+                  raise SystemExit("wheel is missing canvas_student_cli/SKILL.md")
+              license_names = [name for name in names if name.endswith("/LICENSE") or name == "LICENSE"]
+              if not any(len(wheel.read(name)) > 30_000 for name in license_names):
+                  raise SystemExit("wheel is missing a complete LICENSE larger than 30KB")
+
+          with tarfile.open(sdists[0]) as sdist:
+              root = sdists[0].name.removesuffix(".tar.gz")
+              names = set(sdist.getnames())
+              for required in {f"{root}/SKILL.md", f"{root}/LICENSE"}:
+                  if required not in names:
+                      raise SystemExit(f"sdist is missing {required}")
+          PY
+      - uses: actions/upload-artifact@v7
+        with:
+          name: canvas-student-cli-dist
+          path: dist/*

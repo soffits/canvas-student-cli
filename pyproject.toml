@@ -1,0 +1,67 @@
+[project]
+name = "canvas-student-cli"
+version = "0.1.0"
+description = "Student-only read CLI for Canvas LMS"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "AGPL-3.0-only"
+authors = [{ name = "Sakina" }]
+maintainers = [{ name = "Sakina" }]
+keywords = ["canvas", "lms", "student", "cli"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Education",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.2.2",
+  "pytest>=8.3.0",
+  "ruff>=0.8.0",
+]
+
+[project.scripts]
+canvas-student = "canvas_student_cli:main"
+
+[project.urls]
+Homepage = "https://github.com/soffits/canvas-student-cli"
+Repository = "https://github.com/soffits/canvas-student-cli"
+Issues = "https://github.com/soffits/canvas-student-cli/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/canvas_student_cli",
+  "/tests",
+  "/README.md",
+  "/SECURITY.md",
+  "/CONTRIBUTING.md",
+  "/SKILL.md",
+  "/LICENSE",
+  "/pyproject.toml",
+]
+
+[tool.hatch.build.targets.wheel.force-include]
+"SKILL.md" = "canvas_student_cli/SKILL.md"
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
