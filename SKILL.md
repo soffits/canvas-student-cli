@@ -3,7 +3,7 @@ name: canvas-student-cli
 description: Read student Canvas LMS data on demand with the canvas-student CLI.
 version: 0.1.0
 author: Sakina
-license: AGPL-3.0-only
+license: AGPL-3.0-or-later
 platforms: [linux, macos, windows]
 prerequisites:
   env_vars: [CANVAS_BASE_URL, CANVAS_API_TOKEN_FILE]

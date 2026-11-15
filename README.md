@@ -75,4 +75,8 @@ uv run pytest
 uv run python -m build
 ```
 
+## License
+
+Copyright © 2026 Sakina. Licensed under the [GNU Affero General Public License v3.0 or later](LICENSE).
+
 Project URL: https://github.com/soffits/canvas-student-cli
