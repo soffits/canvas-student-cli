@@ -1,6 +1,6 @@
 # canvas-student-cli
 
-`canvas-student-cli` is a student-only, read-oriented Canvas LMS command-line tool. It performs authenticated Canvas REST API reads, prints compact JSON success payloads to stdout, and prints compact structured JSON errors to stderr.
+`canvas-student` reads your own [Canvas LMS](https://www.instructure.com/canvas) account from the command line: courses, assignments, grades, submissions and feedback, files, modules, pages, discussions, announcements, the calendar and your inbox. It only ever sends `GET` requests to the Canvas API, prints results as compact JSON on stdout and errors as JSON on stderr. It's made for students, so there are no teacher or admin commands.
 
 The installed executable is `canvas-student`. The import package is `canvas_student_cli`.
 
@@ -33,13 +33,13 @@ export CANVAS_BASE_URL="https://canvas.example.edu"
 
 ## Output
 
-Successful commands preserve the legacy compact JSON stdout format. Errors are compact JSON on stderr with stable categories: `usage`, `config`, `security`, `canvas_http`, `network`, and `internal`.
+Successful commands print compact JSON on stdout. Errors are compact JSON on stderr with stable categories: `usage`, `config`, `security`, `canvas_http`, `network`, and `internal`.
 
 ## Commands
 
-Existing read commands are preserved: `auth_check`, `profile`, `dashboard_cards`, `todo`, `upcoming_events`, `missing_submissions`, `list_courses`, `get_course`, `get_syllabus`, `list_assignments`, `get_assignment`, `list_assignment_groups`, `get_submission`, `list_my_submissions`, `get_submission_feedback`, `get_grades`, `list_quizzes`, `get_quiz`, `list_files`, `get_file`, `list_groups`, `list_group_members`, `list_discussions`, `get_discussion`, `get_discussion_view`, `list_announcements`, `list_modules`, `get_module`, `list_module_items`, `course_structure`, `list_pages`, `get_page`, `calendar_events`, `list_conversations`, `get_conversation`, `conversation_unread_count`, `list_peer_reviews`, `get_submission_peer_reviews`, `user_activity_stream`, `course_activity_stream`, and `search_course_content`.
+Read commands: `auth_check`, `profile`, `dashboard_cards`, `todo`, `upcoming_events`, `missing_submissions`, `list_courses`, `get_course`, `get_syllabus`, `list_assignments`, `get_assignment`, `list_assignment_groups`, `get_submission`, `list_my_submissions`, `get_submission_feedback`, `get_grades`, `list_quizzes`, `get_quiz`, `list_files`, `get_file`, `list_groups`, `list_group_members`, `list_discussions`, `get_discussion`, `get_discussion_view`, `list_announcements`, `list_modules`, `get_module`, `list_module_items`, `course_structure`, `list_pages`, `get_page`, `calendar_events`, `list_conversations`, `get_conversation`, `conversation_unread_count`, `list_peer_reviews`, `get_submission_peer_reviews`, `user_activity_stream`, `course_activity_stream`, and `search_course_content`.
 
-Group-scoped reads are also available: `get_group`, `list_group_files`, `list_group_folders`, `list_group_discussions`, `get_group_discussion`, `get_group_discussion_view`, `list_group_pages`, and `get_group_page`.
+Group reads: `get_group`, `list_group_files`, `list_group_folders`, `list_group_discussions`, `get_group_discussion`, `get_group_discussion_view`, `list_group_pages`, and `get_group_page`.
 
 Safe file download:
 
@@ -50,7 +50,7 @@ canvas-student download_file FILE_ID ./file.pdf --overwrite
 
 The command first reads Canvas file metadata with bearer authentication, then downloads the Canvas-provided file URL without forwarding `Authorization` to that file host. It enforces bounded redirects, rejects unsafe local paths, streams to a private temporary file, enforces size limits, fsyncs, and atomically publishes.
 
-## Client-Side List Filtering
+## Filtering lists
 
 List commands accept optional projection and filtering after bounded pagination completes:
 
@@ -62,9 +62,9 @@ canvas-student list_assignments 123 --fields id,name,due_at --match lab --sort d
 
 `list_conversations` also supports `--context-code` and `--query` as client-side filters while preserving Canvas `--scope` and `--filter` request flags.
 
-## Read-Only Guarantees
+## Read-only
 
-Authenticated Canvas API requests are structurally constrained to `GET`. The CLI does not implement Canvas write operations, course audit commands, teacher/admin analytics, or cross-source academic orchestration.
+Every authenticated Canvas API request is a `GET`; the code has no path that sends anything else. There are no commands that change anything in Canvas, and none of the teacher or admin analytics.
 
 ## Development
 
